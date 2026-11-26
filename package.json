@@ -1,0 +1,20 @@
+{
+  "name": "doodle-ruckus",
+  "version": "1.0.0",
+  "private": true,
+  "description": "DOODLE RUCKUS · 纸上大乱涂 —— 笔记本纸上的第一人称波次射击（Three.js，纯前端，无外部资源）",
+  "scripts": {
+    "build": "esbuild src/main.js --bundle --format=iife --target=es2020 --outfile=game.js",
+    "watch": "esbuild src/main.js --bundle --format=iife --target=es2020 --outfile=game.js --watch",
+    "test": "esbuild test/hitscan.test.js test/damage.test.js --bundle --platform=node --format=cjs --outdir=.test-build --out-extension:.js=.cjs && node .test-build/hitscan.test.cjs && node .test-build/damage.test.cjs",
+    "serve": "python3 -m http.server 8765"
+  },
+  "keywords": ["game", "threejs", "fps", "canvas", "webgl", "doodle"],
+  "license": "MIT",
+  "dependencies": {
+    "three": "0.170.0"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.0"
+  }
+}

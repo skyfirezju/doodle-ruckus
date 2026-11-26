@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>DOODLE RUCKUS · 纸上大乱涂</title>
+<meta name="description" content="在笔记本上的一场墨水大乱斗 —— 第一人称波次射击">
+<link rel="stylesheet" href="./style.css">
+</head>
+<body>
+<canvas id="game"></canvas>
+<canvas id="ink"></canvas>
+<div id="vignette"></div>
+<div id="grain"></div>
+
+<!-- ============ HUD ============ -->
+<div id="hud" class="hidden">
+  <div class="hud-top">
+    <div class="wave-box">
+      <div id="waveLabel" class="wave-label">WAVE 1 / 8</div>
+      <div id="waveSub" class="wave-sub">剩余 0</div>
+    </div>
+    <div class="score-box">
+      <span class="score-cap">SCORE</span>
+      <span id="score">0</span>
+    </div>
+  </div>
+
+  <div id="combo" class="combo hidden"><b>×2</b><span>连击</span><i id="comboFill"></i></div>
+
+  <div class="hud-bottom-left">
+    <div class="hp-row">
+      <span class="hp-cap">HP</span>
+      <div class="hp-bar"><i id="hpFill"></i><em id="hpNum">100</em></div>
+    </div>
+    <div class="dash-row">
+      <span class="dash-cap">DASH</span>
+      <div class="dash-bar"><i id="dashFill"></i></div>
+    </div>
+  </div>
+
+  <div class="hud-bottom-right">
+    <div class="weapon-box">
+      <div id="weaponName" class="weapon-name">铅笔手枪</div>
+      <div id="weaponEn" class="weapon-en">PENCIL POPPER</div>
+      <div id="ammo" class="ammo">12 / 12</div>
+    </div>
+  </div>
+
+  <div id="crosshair" class="crosshair"><i class="c-t"></i><i class="c-b"></i><i class="c-l"></i><i class="c-r"></i><b class="c-dot"></b></div>
+  <div id="hitmarker" class="hitmarker"><i></i><i></i><i></i><i></i></div>
+
+  <div id="bossBar" class="boss-bar hidden">
+    <div id="bossName" class="boss-name">THE ERASER · 橡皮擦</div>
+    <div class="boss-track"><i id="bossFill"></i></div>
+  </div>
+
+  <div id="killfeed" class="killfeed"></div>
+  <div id="dmgLayer" class="dmg-layer"></div>
+  <div id="hint" class="hint">WASD 移动</div>
+  <div id="banner" class="banner">
+    <div id="bannerTitle" class="banner-title">WAVE 1</div>
+    <div id="bannerSub" class="banner-sub">准备涂鸦</div>
+  </div>
+</div>
+
+<div id="hurt" class="hurt"></div>
+<div id="heal" class="heal"></div>
+
+<!-- ============ TITLE ============ -->
+<div id="screen-title" class="screen">
+  <div class="title-frame">
+    <div class="title-kicker">A NOTEBOOK FPS · 笔记本上的第一人称射击</div>
+    <h1 class="game-title">
+      <span class="t1">DOODLE</span>
+      <span class="t2">RUCKUS</span>
+    </h1>
+    <div class="title-cn">纸 上 大 乱 涂</div>
+    <p class="title-lede">整张笔记本纸都是你的战场。<br>墨水快用完了，而它们还在从格线里爬出来。</p>
+
+    <div class="title-actions">
+      <button id="btn-start" class="btn btn-primary">开 始 涂 鸦</button>
+      <div id="title-best" class="best-line">还没有记录，来涂第一笔</div>
+    </div>
+
+    <div class="controls-grid">
+      <div class="ctrl"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd><span>移动</span></div>
+      <div class="ctrl"><kbd>鼠标</kbd><span>看向 · 左键开火</span></div>
+      <div class="ctrl"><kbd>Shift</kbd><span>疾跑</span></div>
+      <div class="ctrl"><kbd>Space</kbd><span>跳跃</span></div>
+      <div class="ctrl"><kbd>C</kbd><span>冲刺（无敌帧）</span></div>
+      <div class="ctrl"><kbd>F</kbd><span>橡皮擦近战</span></div>
+      <div class="ctrl"><kbd>1</kbd><kbd>2</kbd><kbd>3</kbd><span>换武器</span></div>
+      <div class="ctrl"><kbd>R</kbd><span>装填</span></div>
+      <div class="ctrl"><kbd>ESC</kbd><span>暂停</span></div>
+      <div class="ctrl"><kbd>掉出纸面</kbd><span>扣血并弹回</span></div>
+    </div>
+
+    <div class="title-foot">耳机体验更佳 · 点击开始后会锁定鼠标 · 随时按 ESC 暂停</div>
+  </div>
+</div>
+
+<!-- ============ PAUSE ============ -->
+<div id="screen-pause" class="screen hidden">
+  <div class="panel">
+    <div class="panel-kicker">PAUSED</div>
+    <h2 class="panel-title">先削个铅笔</h2>
+    <div class="settings">
+      <label class="slider-row">
+        <span>鼠标灵敏度</span>
+        <input id="sens" type="range" min="4" max="60" step="1" value="22">
+        <b id="sensVal">22</b>
+      </label>
+      <label class="slider-row">
+        <span>音量</span>
+        <input id="vol" type="range" min="0" max="100" step="1" value="80">
+        <b id="volVal">80</b>
+      </label>
+    </div>
+    <div class="panel-actions">
+      <button id="btn-resume" class="btn btn-primary">继续</button>
+      <button id="btn-restart" class="btn">重新开始</button>
+      <button id="btn-quit" class="btn">回到封面</button>
+    </div>
+    <div class="panel-tip">提示：冲刺有无敌帧，可以用它穿过弹幕。</div>
+  </div>
+</div>
+
+<!-- ============ UPGRADE ============ -->
+<div id="screen-upgrade" class="screen hidden">
+  <div class="panel panel-wide">
+    <div class="panel-kicker">PAGE CLEARED</div>
+    <h2 id="upgrade-title" class="panel-title">WAVE 1 清空！挑一张贴纸</h2>
+    <div id="upgrade-cards" class="upgrade-cards"></div>
+    <div class="panel-tip">贴纸会一直生效，选一张最顺手的。</div>
+  </div>
+</div>
+
+<!-- ============ GAME OVER ============ -->
+<div id="screen-over" class="screen hidden">
+  <div class="panel">
+    <div class="panel-kicker">SMUDGED</div>
+    <h2 id="over-title" class="panel-title">被擦掉了…</h2>
+    <div class="over-stats">
+      <div class="stat"><span>本局得分</span><b id="over-score">0</b></div>
+      <div class="stat"><span>停在</span><b id="over-wave">WAVE 1</b></div>
+      <div class="stat"><span>纪录</span><b id="over-best">最高 0</b></div>
+    </div>
+    <div class="panel-actions">
+      <button id="btn-over-restart" class="btn btn-primary">再涂一次</button>
+      <button id="btn-over-title" class="btn">回到封面</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ VICTORY ============ -->
+<div id="screen-victory" class="screen hidden">
+  <div class="panel">
+    <div class="panel-kicker">PAGE CLEARED</div>
+    <h2 class="panel-title">你把整页纸都涂满了！</h2>
+    <div class="victory-score"><span>FINAL SCORE</span><b id="victory-score">0</b></div>
+    <div class="panel-actions">
+      <button id="btn-victory-continue" class="btn btn-primary">继续无尽模式</button>
+      <button id="btn-victory-title" class="btn">回到封面</button>
+    </div>
+  </div>
+</div>
+
+<script src="./game.js"></script>
+</body>
+</html>
