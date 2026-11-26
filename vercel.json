@@ -1,14 +1,9 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "cleanUrls": false,
+  "outputDirectory": ".",
   "headers": [
-    {
-      "source": "/game.js",
-      "headers": [{ "key": "Cache-Control", "value": "public, max-age=300" }]
-    },
-    {
-      "source": "/assets/(.*)",
-      "headers": [{ "key": "Cache-Control", "value": "public, max-age=604800" }]
-    }
+    { "source": "/game.js", "headers": [{ "key": "Cache-Control", "value": "public, max-age=300" }] },
+    { "source": "/assets/(.*)", "headers": [{ "key": "Cache-Control", "value": "public, max-age=604800" }] }
   ]
 }
